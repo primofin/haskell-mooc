@@ -88,9 +88,14 @@ mapMaybe2 f x y
 palindromeHalfs :: [String] -> [String]
 palindromeHalfs xs = map firstHalf (filter palindrome xs)
 
-firstHalf = todo
+firstHalf :: String -> String
+firstHalf str
+ | length str `mod` 2 == 1 = take (length str `div` 2 + 1) str
+ | otherwise = take (length str `div` 2) str
 
-palindrome = todo
+palindrome :: String -> Bool
+palindrome s = reverse s == s
+
 
 ------------------------------------------------------------------------------
 -- Ex 5: Implement a function capitalize that takes in a string and
@@ -108,7 +113,11 @@ palindrome = todo
 --   capitalize "goodbye cruel world" ==> "Goodbye Cruel World"
 
 capitalize :: String -> String
-capitalize = todo
+capitalize str = unwords (map capitalizeFirst (words str))
+
+capitalizeFirst :: String -> String
+capitalizeFirst [] = []
+capitalizeFirst (x:xs) = toUpper x : xs
 
 ------------------------------------------------------------------------------
 -- Ex 6: powers k max should return all the powers of k that are less
@@ -125,7 +134,7 @@ capitalize = todo
 --   * the function takeWhile
 
 powers :: Int -> Int -> [Int]
-powers k max = todo
+powers k max = takeWhile (<= max) $ map (k^) [0..]
 
 ------------------------------------------------------------------------------
 -- Ex 7: implement a functional while loop. While should be a function
