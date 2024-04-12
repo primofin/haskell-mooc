@@ -28,7 +28,9 @@ import Data.List
 --  maxBy head   [1,2,3] [4,5]  ==>  [4,5]
 
 maxBy :: (a -> Int) -> a -> a -> a
-maxBy measure a b = todo
+maxBy measure a b 
+  | measure a > measure b = a
+  | measure a < measure b = b
 
 ------------------------------------------------------------------------------
 -- Ex 2: implement the function mapMaybe that takes a function and a
@@ -40,7 +42,10 @@ maxBy measure a b = todo
 --   mapMaybe length (Just "abc") ==> Just 3
 
 mapMaybe :: (a -> b) -> Maybe a -> Maybe b
-mapMaybe f x = todo
+mapMaybe f x =
+  case x of
+    Nothing -> Nothing
+    Just val -> Just (f val)
 
 ------------------------------------------------------------------------------
 -- Ex 3: implement the function mapMaybe2 that works like mapMaybe
@@ -54,7 +59,14 @@ mapMaybe f x = todo
 --   mapMaybe2 div (Just 6) Nothing   ==>  Nothing
 
 mapMaybe2 :: (a -> b -> c) -> Maybe a -> Maybe b -> Maybe c
-mapMaybe2 f x y = todo
+mapMaybe2 f x y 
+ | isNothing x || isNothing y = Nothing
+ | otherwise = Just (f (fromJust x) (fromJust y)) 
+ where 
+  isNothing Nothing = True
+  isNothing _       = False
+  fromJust (Just val) = val
+ 
 
 ------------------------------------------------------------------------------
 -- Ex 4: define the functions firstHalf and palindrome so that
