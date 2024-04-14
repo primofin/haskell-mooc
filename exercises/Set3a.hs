@@ -157,7 +157,9 @@ powers k max = takeWhile (<= max) $ map (k^) [0..]
 --     ==> Avvt
 
 while :: (a->Bool) -> (a->a) -> a -> a
-while check update value = todo
+while check update value 
+  | check value == False = value
+  | otherwise = while check update (update value)
 
 ------------------------------------------------------------------------------
 -- Ex 8: another version of a while loop. This time, the check
@@ -177,7 +179,9 @@ while check update value = todo
 -- Hint! Remember the case-of expression from lecture 2.
 
 whileRight :: (a -> Either b a) -> a -> b
-whileRight check x = todo
+whileRight check x = case check x of
+  Right a -> whileRight check a
+  Left b -> b
 
 -- for the whileRight examples:
 -- step k x doubles x if it's less than k
@@ -201,7 +205,7 @@ bomb x = Right (x-1)
 -- Hint! This is a great use for list comprehensions
 
 joinToLength :: Int -> [String] -> [String]
-joinToLength = todo
+joinToLength len strings = [x ++ y | x <- strings, y <- strings, length (x ++ y) == len]
 
 ------------------------------------------------------------------------------
 -- Ex 10: implement the operator +|+ that returns a list with the first
@@ -215,6 +219,10 @@ joinToLength = todo
 --   [] +|+ [True]        ==> [True]
 --   [] +|+ []            ==> []
 
+(+|+) :: [a] -> [a] -> [a]
+[] +|+ ys = take 1 ys
+xs +|+ [] = take 1 xs
+(x:xs) +|+ (y:ys) = [x, y]
 
 ------------------------------------------------------------------------------
 -- Ex 11: remember the lectureParticipants example from Lecture 2? We
@@ -231,7 +239,8 @@ joinToLength = todo
 --   sumRights [Left "bad!", Left "missing"]         ==>  0
 
 sumRights :: [Either a Int] -> Int
-sumRights = todo
+sumRights = sum . map (either (const 0) id)
+
 
 ------------------------------------------------------------------------------
 -- Ex 12: recall the binary function composition operation
@@ -247,7 +256,9 @@ sumRights = todo
 --   multiCompose [(3*), (2^), (+1)] 0 ==> 6
 --   multiCompose [(+1), (2^), (3*)] 0 ==> 2
 
-multiCompose fs = todo
+multiCompose :: [(a -> a)] -> a -> a
+multiCompose [] x = x
+multiCompose (f:fs) x = f (multiCompose fs x)
 
 ------------------------------------------------------------------------------
 -- Ex 13: let's consider another way to compose multiple functions. Given
@@ -268,7 +279,8 @@ multiCompose fs = todo
 --   multiApp id [head, (!!2), last] "axbxc" ==> ['a','b','c'] i.e. "abc"
 --   multiApp sum [head, (!!2), last] [1,9,2,9,3] ==> 6
 
-multiApp = todo
+multiApp :: ([b] -> c) -> [(a -> b)] -> a -> c
+multiApp f gs x = f (map (\g -> g x) gs)
 
 ------------------------------------------------------------------------------
 -- Ex 14: in this exercise you get to implement an interpreter for a
@@ -303,4 +315,17 @@ multiApp = todo
 -- function, the surprise won't work. See section 3.8 in the material.
 
 interpreter :: [String] -> [String]
-interpreter commands = todo
+interpreter commands = reverse $ interpreterHelper 0 0 commands []
+
+interpreterHelper :: Int -> Int -> [String] -> [String] -> [String]
+interpreterHelper _ _ [] results = results
+interpreterHelper x y (cmd:cmds) results
+    | cmd == "up"     = interpreterHelper x (y + 1) cmds results
+    | cmd == "down"   = interpreterHelper x (y - 1) cmds results
+    | cmd == "left"   = interpreterHelper (x - 1) y cmds results
+    | cmd == "right"  = interpreterHelper (x + 1) y cmds results
+    | cmd == "printX" = interpreterHelper x y cmds (show x : results)
+    | cmd == "printY" = interpreterHelper x y cmds (show y : results)
+    | otherwise       = interpreterHelper x y cmds results
+
+
