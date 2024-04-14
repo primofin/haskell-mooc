@@ -206,12 +206,26 @@ simplify (RationalNumber a b)
 --   signum (RationalNumber 0 2)             ==> RationalNumber 0 1
 
 instance Num RationalNumber where
-  p + q = todo
-  p * q = todo
-  abs q = todo
-  signum q = todo
-  fromInteger x = todo
-  negate q = todo
+  -- Addition
+  (RationalNumber n1 d1) + (RationalNumber n2 d2) =
+    simplify $ RationalNumber (n1 * d2 + n2 * d1) (d1 * d2)
+  
+  -- Multiplication
+  (RationalNumber n1 d1) * (RationalNumber n2 d2) =
+    simplify $ RationalNumber (n1 * n2) (d1 * d2)
+  
+  -- Absolute value
+  abs (RationalNumber n d) = RationalNumber (abs n) (abs d)
+  
+  -- Signum
+  signum (RationalNumber n d) = RationalNumber (signum n) (signum d)
+  
+  -- Conversion from Integer
+  fromInteger x = RationalNumber (fromInteger x) 1
+  
+  -- Negation
+  negate (RationalNumber n d) = RationalNumber (-n) d
+
 
 ------------------------------------------------------------------------------
 -- Ex 11: a class for adding things. Define a class Addable with a
@@ -225,6 +239,19 @@ instance Num RationalNumber where
 --   add 1 zero             ==>  1
 --   add [1,2] [3,4]        ==>  [1,2,3,4]
 --   add zero [True,False]  ==>  [True,False]
+
+class Addable a where
+    zero :: a
+    add :: a -> a -> a
+
+instance Addable Integer where
+    zero = 0
+    add = (+)
+
+instance Addable [a] where
+    zero = []
+    add = (++)
+
 
 
 ------------------------------------------------------------------------------
@@ -256,4 +283,21 @@ data Color = Red | Green | Blue
   deriving (Show, Eq)
 data Suit = Club | Spade | Diamond | Heart
   deriving (Show, Eq)
+
+
+class Cycle a where
+    step :: a -> a
+    stepMany :: Int -> a -> a
+    stepMany n = (!! n) . iterate step
+
+instance Cycle Color where
+    step Red   = Green
+    step Green = Blue
+    step Blue  = Red
+
+instance Cycle Suit where
+    step Club    = Spade
+    step Spade   = Diamond
+    step Diamond = Heart
+    step Heart   = Club
 
